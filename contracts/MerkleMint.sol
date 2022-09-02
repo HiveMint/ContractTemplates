@@ -36,7 +36,14 @@ contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter {
         uint256 memory _totalSupply,
         uint256 memory _publicStartTime
     ) ERC721(collectionName, tokenSymbol) PaymentSplitter(_payees, _shares) {
-        // set baseURI
+        // initialize base variables
         baseURI = _baseUri;
+        merkleRoots = _merkleRoots;
+        merklePrices = _merklePrices;
+        merkleSupply = _merkleSupply;
+        merkleStartTime = _merkleStartTime;
+        publicPrice = _publicPrice;
+        totalSupply = _totalSupply;
+        publicStartTime = _publicStartTime;
     }
 }
