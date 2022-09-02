@@ -10,14 +10,21 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
 
 /*
- *  MerkleMint NFT Contract Template by HiveMint
+ *  MerkleMint NFT Contract Template by Y4000 for HiveMint
  */
 contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter {
+    struct MerkleTier {
+        bytes32 root;
+        uint256 price;
+        uint256 supply;
+        uint256 startTime;
+        uint256 maxPerWallet;
+    }
+
+    mapping(uint256 => mapping(address => uint256)) merkleMinted;
+
     string public baseUri;
-    bytes32[] public merkleRoots;
-    uint256[] public merklePrices;
-    uint256[] public merkleSupply;
-    uint256[] public merkleStartTime;
+    MerkleTier[] public tiers;
     uint256 public publicPrice;
     uint256 public totalSupply;
     uint256 public publicStartTime;
@@ -28,20 +35,14 @@ contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter {
         address[] memory _payees,
         uint256[] memory _shares,
         string memory _baseUri,
-        bytes32[] memory _merkleRoots,
-        uint256[] memory _merklePrices,
-        uint256[] memory _merkleSupply,
-        uint256[] memory _merkleStartTime,
+        MerkleTier[] memory _tiers,
         uint256 memory _publicPrice,
         uint256 memory _totalSupply,
         uint256 memory _publicStartTime
     ) ERC721(collectionName, tokenSymbol) PaymentSplitter(_payees, _shares) {
         // initialize base variables
         baseURI = _baseUri;
-        merkleRoots = _merkleRoots;
-        merklePrices = _merklePrices;
-        merkleSupply = _merkleSupply;
-        merkleStartTime = _merkleStartTime;
+        tiers = _tiers;
         publicPrice = _publicPrice;
         totalSupply = _totalSupply;
         publicStartTime = _publicStartTime;
