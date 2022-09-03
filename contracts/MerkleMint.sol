@@ -47,4 +47,15 @@ contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter {
         totalSupply = _totalSupply;
         publicStartTime = _publicStartTime;
     }
+
+    function airdrop(address[] calldata _recipients) public onlyOwner {
+    }
+
+    function merkleMint(uint256 numTokens, bytes32[] calldata _merkleProof) public whenNotPaused {
+    }
+
+    function publicMint(uint256 numTokens) public payable whenNotPaused {
+    }
+
+
 }
