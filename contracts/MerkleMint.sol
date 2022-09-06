@@ -67,14 +67,20 @@ contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter {
             merkleTiers[tierIdx].price * numTokens <= msg.value, 
             "Insufficient funds for the requested transaction"
         );
-        // TODO: check if max minted merkleTiers[tierIdx].maxPerWallet
+        // check if max minted merkleTiers[tierIdx].maxPerWallet
+        uint x = tierMinted[tierIdx][msg.sender];
+        require(
+            x + numTokens <= merkleTiers[tierIdx].maxPerWallet, 
+            "Request exceeds maximum tokens per wallet"
+        );
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
         require(
             MerkleProof.verify(_merkleProof, merkleTiers[tierIdx].root, leaf), 
             "Not authorized for minting at this tier"
         );
         mint(msg.sender, numTokens);
-        // TODO: increment tier minted for this addy
+        // increment tier minted for this address
+        tierMinted[tierIdx][msg.sender] = x+numTokens;
     }
 
     function publicMint(uint256 numTokens) public payable whenNotPaused {
