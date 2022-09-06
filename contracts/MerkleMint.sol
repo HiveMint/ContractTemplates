@@ -54,8 +54,6 @@ contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter, CantBeEvil {
         baseURI = _baseUri;
         merkleTiers = _merkleTiers;
         publicTier = _publicTier;
-        // start counter at 1 so that the first NFT is #1
-        _mintCount.increment();
     }
 
     function airdrop(address[] calldata _recipients) public onlyOwner {
@@ -120,12 +118,13 @@ contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter, CantBeEvil {
 
     function mint(address addr, uint256 numTokens) private {
         require(
-            _mintCount.current() + numTokens <= publicTier.supply, 
+            _mintCount.current() + numTokens < publicTier.supply, 
             "Not enough supply remaining for the requested transaction"
         );
         for(uint256 i = 0; i < numTokens; i++) {
+            // increment prior to mint allows #1 based vs #0 based token ids
+            _mintCount.increment(); 
             _safeMint(addr, _mintCount.current());
-            _mintCount.increment();
         }
     }
 
