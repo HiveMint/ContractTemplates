@@ -23,6 +23,7 @@ contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter {
     }
 
     mapping(uint256 => mapping(address => uint256)) tierMinted;
+    mapping(uint256 => uint256) tierCounts;
     mapping(address => uint256) publicMinted;
 
     string public baseUri;
@@ -73,6 +74,13 @@ contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter {
             x + numTokens <= merkleTiers[tierIdx].maxPerWallet, 
             "Request exceeds maximum tokens per wallet"
         );
+        // check tier supply
+        uint y = tierCounts[tierIdx];
+        require(
+            y + numTokens <= merkleTiers[tierIdx].supply, 
+            "Not enough supply remaining within this tier for the requested transaction"
+        );
+        // verify merkle proof
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
         require(
             MerkleProof.verify(_merkleProof, merkleTiers[tierIdx].root, leaf), 
@@ -81,6 +89,8 @@ contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter {
         mint(msg.sender, numTokens);
         // increment tier minted for this address
         tierMinted[tierIdx][msg.sender] = x+numTokens;
+        // incremeint tier total minted count
+        tierCounts[tierIdx] = y+numTokens;
     }
 
     function publicMint(uint256 numTokens) public payable whenNotPaused {
