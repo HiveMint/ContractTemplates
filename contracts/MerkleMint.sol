@@ -8,11 +8,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
-
+import {CantBeEvil} from "@a16z/contracts/licenses/CantBeEvil.sol";
 /*
  *  MerkleMint NFT Contract Template by Y4000 for HiveMint
  */
-contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter {
+contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter, CantBeEvil {
 
     struct Tier {
         bytes32 root;
@@ -34,7 +34,7 @@ contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter {
     Counters.Counter private _mintCount;
 
     /**
-        TODO: Licensing and Royalties
+        TODO: Royalties
      */
     constructor(
         string memory collectionName,
@@ -43,8 +43,13 @@ contract MerkleMint is ERC721, Pausable, Ownable, PaymentSplitter {
         uint256[] memory _shares,
         string memory _baseUri,
         Tier[] memory _merkleTiers,
-        Tier memory _publicTier
-    ) ERC721(collectionName, tokenSymbol) PaymentSplitter(_payees, _shares) {
+        Tier memory _publicTier,
+        uint8 memory _licenseVersion // corresponds to enum as defined by LicenseVersion
+    ) 
+    ERC721(collectionName, tokenSymbol) 
+    PaymentSplitter(_payees, _shares) 
+    CantBeEvil(_licenseVersion) 
+    {
         // initialize base variables
         baseURI = _baseUri;
         merkleTiers = _merkleTiers;
