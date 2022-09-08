@@ -91,6 +91,14 @@ contract MerkleMint is ERC721Royalty, Pausable, Ownable, PaymentSplitter, CantBe
         _setDefaultRoyalty(royaltyRecipient, royalty);        
     }
 
+    function setMerkleTiers(Tier[] memory _merkleTiers) public onlyOwner {
+        merkleTiers = _merkleTiers;
+    }
+
+    function setPublicTier(Tier memory _publicTier) public onlyOwner {
+        publicTier = _publicTier;
+    }
+
     function setBaseURI(string memory uri) public onlyOwner {
         baseURI = uri;
     }
