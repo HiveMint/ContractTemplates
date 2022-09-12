@@ -46,7 +46,7 @@ contract MerkleMint is ERC721Royalty, Pausable, Ownable, PaymentSplitter, CantBe
     using Counters for Counters.Counter;
     Counters.Counter private _mintCount;
 
-    uint98 private totalPayees;
+    uint8 private totalPayees;
 
     constructor(
         string memory collectionName,
@@ -67,7 +67,7 @@ contract MerkleMint is ERC721Royalty, Pausable, Ownable, PaymentSplitter, CantBe
         // royalty info
         _setDefaultRoyalty(royaltyRecipient, royalty);        
         // initialize base variables
-        baseURI = _baseUri;
+        baseUri = _baseUri;
         merkleTiers = _merkleTiers;
         publicTier = _publicTier;
         totalPayees = _payees.length;
