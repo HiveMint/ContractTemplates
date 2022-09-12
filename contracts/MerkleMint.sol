@@ -46,19 +46,19 @@ contract MerkleMint is ERC721Royalty, Pausable, Ownable, PaymentSplitter, CantBe
     using Counters for Counters.Counter;
     Counters.Counter private _mintCount;
 
-    uint8 private totalPayees;
+    uint256 private totalPayees;
 
     constructor(
         string memory collectionName,
         string memory tokenSymbol,
         address[] memory _payees,
         uint256[] memory _shares,
-        string memory _baseUri,
+        string memory _baseUri_,
         Tier[] memory _merkleTiers,
         Tier memory _publicTier,
-        address memory royaltyRecipient,
-        uint96 memory royalty,
-        uint8 memory _licenseVersion // corresponds to enum as defined by LicenseVersion
+        address royaltyRecipient,
+        uint96 royalty,
+        uint8 _licenseVersion // corresponds to enum as defined by LicenseVersion
     ) 
     ERC721(collectionName, tokenSymbol) 
     PaymentSplitter(_payees, _shares) 
@@ -67,7 +67,7 @@ contract MerkleMint is ERC721Royalty, Pausable, Ownable, PaymentSplitter, CantBe
         // royalty info
         _setDefaultRoyalty(royaltyRecipient, royalty);        
         // initialize base variables
-        baseUri = _baseUri;
+        baseUri = _baseUri_;
         merkleTiers = _merkleTiers;
         publicTier = _publicTier;
         totalPayees = _payees.length;
@@ -87,7 +87,7 @@ contract MerkleMint is ERC721Royalty, Pausable, Ownable, PaymentSplitter, CantBe
         }
     }
 
-    function setDefaultRoyalty(address memory royaltyRecipient, uint96 memory royalty) public onlyOwner {
+    function setDefaultRoyalty(address royaltyRecipient, uint96 royalty) public onlyOwner {
         _setDefaultRoyalty(royaltyRecipient, royalty);        
     }
 
@@ -99,12 +99,12 @@ contract MerkleMint is ERC721Royalty, Pausable, Ownable, PaymentSplitter, CantBe
         publicTier = _publicTier;
     }
 
-    function setBaseURI(string memory uri) public onlyOwner {
-        baseURI = uri;
+    function setBaseUri(string memory uri) public onlyOwner {
+        baseUri = uri;
     }
 
-    function _baseURI() internal view override returns (string memory) {
-        return baseURI;
+    function _baseUri() internal view override returns (string memory) {
+        return baseUri;
     }
 
     function totalSupply() public view returns(uint256){
