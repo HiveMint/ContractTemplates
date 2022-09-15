@@ -24,7 +24,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol"; /// TODO: EIP712 is final in OpenZeppelin v4.8.0, which is in RC0 as of 9/12/22
 import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
-import {CantBeEvil} from "@a16z/contracts/licenses/CantBeEvil.sol";
+import {LicenseVersion, CantBeEvil} from "@a16z/contracts/licenses/CantBeEvil.sol";
 
 contract SigMint is
     ERC721Royalty,
@@ -76,7 +76,7 @@ contract SigMint is
     )
         ERC721(collectionName, tokenSymbol)
         PaymentSplitter(_payees, _shares)
-        CantBeEvil(_licenseVersion)
+        CantBeEvil(LicenseVersion(_licenseVersion))
     {
         // royalty info
         _setDefaultRoyalty(royaltyRecipient, royalty);
