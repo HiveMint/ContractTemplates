@@ -13,17 +13,18 @@
 
 */
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.13;
 
 // import "hardhat/console.sol"; // — uncomment when needed
 
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
-import {CantBeEvil} from "@a16z/contracts/licenses/CantBeEvil.sol";
+import {LicenseVersion, CantBeEvil} from "@a16z/contracts/licenses/CantBeEvil.sol";
 
 contract MerkleMint is ERC721Royalty, Pausable, Ownable, PaymentSplitter, CantBeEvil {
 
@@ -62,7 +63,7 @@ contract MerkleMint is ERC721Royalty, Pausable, Ownable, PaymentSplitter, CantBe
     ) 
     ERC721(collectionName, tokenSymbol) 
     PaymentSplitter(_payees, _shares) 
-    CantBeEvil(_licenseVersion) 
+    CantBeEvil(LicenseVersion(_licenseVersion)) 
     {
         // royalty info
         _setDefaultRoyalty(royaltyRecipient, royalty);        
@@ -103,7 +104,7 @@ contract MerkleMint is ERC721Royalty, Pausable, Ownable, PaymentSplitter, CantBe
         baseUri = uri;
     }
 
-    function _baseUri() internal view override returns (string memory) {
+    function _baseUri() internal view returns (string memory) {
         return baseUri;
     }
 
@@ -123,7 +124,7 @@ contract MerkleMint is ERC721Royalty, Pausable, Ownable, PaymentSplitter, CantBe
     /**
         merkleMint - mint routine for registrants whom are on a allow list minting tier
      */
-    function merkleMint(uint256 tierIdx, bytes32[] calldata _merkleProof, uint256 numTokens) public whenNotPaused {
+    function merkleMint(uint256 tierIdx, bytes32[] calldata _merkleProof, uint256 numTokens) public payable whenNotPaused {
         // check to make sure the tier mint time has started
         require(
             block.timestamp < merkleTiers[tierIdx].startTime,
@@ -197,4 +198,13 @@ contract MerkleMint is ERC721Royalty, Pausable, Ownable, PaymentSplitter, CantBe
     }
 
 
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC721Royalty, CantBeEvil)
+        returns (bool)
+    {
+        return ERC721.supportsInterface(interfaceId);
+    }
 }

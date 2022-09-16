@@ -13,10 +13,11 @@
 
 */
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.13;
 
 // import "hardhat/console.sol"; // — uncomment when needed
 
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -31,7 +32,8 @@ contract SigMint is
     Pausable,
     Ownable,
     PaymentSplitter,
-    CantBeEvil
+    CantBeEvil,
+    EIP712
 {
     struct Tier {
         uint256 price;
@@ -80,6 +82,7 @@ contract SigMint is
         ERC721(collectionName, tokenSymbol)
         PaymentSplitter(_payees, _shares)
         CantBeEvil(LicenseVersion(_licenseVersion))
+        EIP712("HiveMint", "1") 
     {
         // royalty info
         _setDefaultRoyalty(royaltyRecipient, royalty);
@@ -124,7 +127,7 @@ contract SigMint is
         baseUri = uri;
     }
 
-    function _baseUri() internal view override returns (string memory) {
+    function _baseUri() internal view returns (string memory) {
         return baseUri;
     }
 
@@ -152,7 +155,7 @@ contract SigMint is
         uint256 tierIdx,
         bytes calldata _signature,
         uint256 numTokens
-    ) public whenNotPaused {
+    ) public payable whenNotPaused {
         // check to make sure the tier mint time has started
         require(
             block.timestamp < signedTiers[tierIdx].startTime,
@@ -232,7 +235,7 @@ contract SigMint is
 
     /// @notice Returns a hash of the given MintPass, prepared using EIP712 typed data hashing rules.
     /// @param pass A MintPass to hash.
-    function _hash(MintPass calldata pass) internal view returns (bytes32) {
+    function _hash(MintPass memory pass) internal view returns (bytes32) {
         return
             _hashTypedDataV4(
                 keccak256(
@@ -259,7 +262,7 @@ contract SigMint is
     /// @notice Verifies the signature for a given MintPass, returning the address of the signer.
     /// @dev Will revert if the signature is invalid. Does not verify that the signer is authorized to mint NFTs.
     /// @param pass An MintPass describing an unminted NFT.
-    function _verify(MintPass calldata pass) internal view returns (address) {
+    function _verify(MintPass memory pass) internal view returns (address) {
         bytes32 digest = _hash(pass);
         return ECDSA.recover(digest, pass.signature);
     }
@@ -268,7 +271,7 @@ contract SigMint is
         public
         view
         virtual
-        override(ERC721)
+        override(ERC721Royalty, CantBeEvil)
         returns (bool)
     {
         return ERC721.supportsInterface(interfaceId);
