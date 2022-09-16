@@ -136,6 +136,10 @@ contract SigMint is
         airdrop - allows contract owner to gift NFTs to a list of addresses
      */
     function airdrop(address[] calldata _recipients) public onlyOwner {
+        require(
+            _mintCount.current() + _recipients.length < publicTier.supply,
+            "Not enough supply remaining for the requested transaction"
+        );
         for (uint256 i = 0; i < _recipients.length; i++) {
             mint(_recipients[i], 1);
         }
