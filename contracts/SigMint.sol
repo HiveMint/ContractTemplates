@@ -57,6 +57,8 @@ contract SigMint is
     Tier[] public signedTiers;
     Tier public publicTier;
 
+    address private _signerAddress;
+
     using Counters for Counters.Counter;
     Counters.Counter private _mintCount;
 
@@ -72,7 +74,8 @@ contract SigMint is
         Tier memory _publicTier,
         address royaltyRecipient,
         uint96 royalty,
-        uint8 _licenseVersion // corresponds to enum as defined by LicenseVersion
+        uint8 _licenseVersion, // corresponds to enum as defined by LicenseVersion
+        address signer
     )
         ERC721(collectionName, tokenSymbol)
         PaymentSplitter(_payees, _shares)
@@ -85,6 +88,7 @@ contract SigMint is
         signedTiers = _signedTiers;
         publicTier = _publicTier;
         totalPayees = _payees.length;
+        _signerAddress = signer;
     }
 
     function pause() public onlyOwner {
@@ -101,10 +105,10 @@ contract SigMint is
         }
     }
 
-    function setDefaultRoyalty(
-        address royaltyRecipient,
-        uint96 royalty
-    ) public onlyOwner {
+    function setDefaultRoyalty(address royaltyRecipient, uint96 royalty)
+        public
+        onlyOwner
+    {
         _setDefaultRoyalty(royaltyRecipient, royalty);
     }
 
@@ -168,14 +172,16 @@ contract SigMint is
             "Not enough supply remaining within this tier for the requested transaction"
         );
 
-        MintPass memory _pass = MintPass({idx:tierIdx, minter:msg.sender, signature:_signature});
+        MintPass memory _pass = MintPass({
+            idx: tierIdx,
+            minter: msg.sender,
+            signature: _signature
+        });
 
-        // verify merkle proof
-        // bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
-        // require(
-        //     MerkleProof.verify(_merkleProof, signedTiers[tierIdx].root, leaf),
-        //     "Not authorized for minting at this tier"
-        // );
+        // make sure signature is valid and get the address of the signer
+        address signer = _verify(_pass);
+        require(_signerAddress == signer, "Signer address mismatch.");
+
         mint(msg.sender, numTokens);
         // increment tier minted for this address
         tierMinted[tierIdx][msg.sender] = x + numTokens;
@@ -218,5 +224,49 @@ contract SigMint is
             _mintCount.increment();
             _safeMint(addr, _mintCount.current());
         }
+    }
+
+    /// @notice Returns a hash of the given MintPass, prepared using EIP712 typed data hashing rules.
+    /// @param pass A MintPass to hash.
+    function _hash(MintPass calldata pass) internal view returns (bytes32) {
+        return
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(
+                        keccak256("MintPass(uint256 idx,address minter)"),
+                        pass.idx,
+                        pass.minter
+                    )
+                )
+            );
+    }
+
+    /// @notice Returns the chain id of the current blockchain.
+    /// @dev This is used to workaround an issue with ganache returning different values from the on-chain chainid() function and
+    ///  the eth_chainId RPC method. See https://github.com/protocol/nft-website/issues/121 for context.
+    function getChainID() external view returns (uint256) {
+        uint256 id;
+        assembly {
+            id := chainid()
+        }
+        return id;
+    }
+
+    /// @notice Verifies the signature for a given MintPass, returning the address of the signer.
+    /// @dev Will revert if the signature is invalid. Does not verify that the signer is authorized to mint NFTs.
+    /// @param pass An MintPass describing an unminted NFT.
+    function _verify(MintPass calldata pass) internal view returns (address) {
+        bytes32 digest = _hash(pass);
+        return ECDSA.recover(digest, pass.signature);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC721)
+        returns (bool)
+    {
+        return ERC721.supportsInterface(interfaceId);
     }
 }
