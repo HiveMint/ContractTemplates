@@ -88,8 +88,8 @@ contract SigMint is
         _setDefaultRoyalty(royaltyRecipient, royalty);
         // initialize base variables
         baseUri = _baseUri_;
-        signedTiers = _signedTiers;
-        publicTier = _publicTier;
+        setSignedTiers(_signedTiers);
+        setPublicTier(_publicTier);
         totalPayees = _payees.length;
         _signerAddress = signer;
     }
@@ -116,11 +116,15 @@ contract SigMint is
     }
 
     function setSignedTiers(Tier[] memory _signedTiers) public onlyOwner {
-        signedTiers = _signedTiers;
+        delete signedTiers;
+        signedTiers = new Tier[](0);
+        for (uint256 i = 0; i< _signedTiers.length; i++) {
+            signedTiers.push(Tier(_signedTiers[i].price, _signedTiers[i].supply, _signedTiers[i].startTime, _signedTiers[i].maxPerWallet));
+        }
     }
 
     function setPublicTier(Tier memory _publicTier) public onlyOwner {
-        publicTier = _publicTier;
+        publicTier = Tier(_publicTier.price, _publicTier.supply, _publicTier.startTime, _publicTier.maxPerWallet);
     }
 
     function setBaseUri(string memory uri) public onlyOwner {
