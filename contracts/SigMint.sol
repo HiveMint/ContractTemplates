@@ -47,7 +47,7 @@ contract SigMint is
         uint256 idx;
         /// @notice minter wallet
         address minter;
-        /// @notice the EIP-712 signature of all other fields in the MintPass struct. For a pass to be valid, it must be signed by an account with the MINTER_ROLE.
+        /// @notice the EIP-712 signature of all other fields in the MintPass struct. For a pass to be valid, it must be signed by the _signerAddress
         bytes signature;
     }
 
