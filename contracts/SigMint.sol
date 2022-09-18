@@ -116,10 +116,12 @@ contract SigMint is
     }
 
     function setSignedTiers(Tier[] memory _signedTiers) public onlyOwner {
-        delete signedTiers;
-        signedTiers = new Tier[](0);
         for (uint256 i = 0; i< _signedTiers.length; i++) {
-            signedTiers.push(Tier(_signedTiers[i].price, _signedTiers[i].supply, _signedTiers[i].startTime, _signedTiers[i].maxPerWallet));
+            Tier storage t = signedTiers[i];
+            t.price = _signedTiers[i].price;
+            t.supply = _signedTiers[i].supply;
+            t.startTime = _signedTiers[i].startTime;
+            t.maxPerWallet = _signedTiers[i].maxPerWallet;
         }
     }
 
