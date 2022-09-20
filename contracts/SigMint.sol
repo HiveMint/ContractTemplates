@@ -18,21 +18,19 @@ pragma solidity ^0.8.13;
 // import "hardhat/console.sol"; // — uncomment when needed
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
+
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol"; /// TODO: EIP712 is final in OpenZeppelin v4.8.0, which is in RC0 as of 9/12/22
 import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
-import {LicenseVersion, CantBeEvil} from "@a16z/contracts/licenses/CantBeEvil.sol";
 
 contract SigMint is
-    ERC721Royalty,
+    ERC721,
     Pausable,
     Ownable,
     PaymentSplitter,
-    CantBeEvil,
     EIP712
 {
     struct Tier {
@@ -74,18 +72,12 @@ contract SigMint is
         string memory _baseUri_,
         Tier[] memory _signedTiers,
         Tier memory _publicTier,
-        address royaltyRecipient,
-        uint96 royalty,
-        uint8 _licenseVersion, // corresponds to enum as defined by LicenseVersion
         address signer
     )
         ERC721(collectionName, tokenSymbol)
         PaymentSplitter(_payees, _shares)
-        CantBeEvil(LicenseVersion(_licenseVersion))
-        EIP712("HiveMint", "1") 
+        EIP712("HiveMint", "1")
     {
-        // royalty info
-        _setDefaultRoyalty(royaltyRecipient, royalty);
         // initialize base variables
         baseUri = _baseUri_;
         setSignedTiers(_signedTiers);
@@ -108,15 +100,8 @@ contract SigMint is
         }
     }
 
-    function setDefaultRoyalty(address royaltyRecipient, uint96 royalty)
-        public
-        onlyOwner
-    {
-        _setDefaultRoyalty(royaltyRecipient, royalty);
-    }
-
     function setSignedTiers(Tier[] memory _signedTiers) public onlyOwner {
-        for (uint256 i = 0; i< _signedTiers.length; i++) {
+        for (uint256 i = 0; i < _signedTiers.length; i++) {
             Tier storage t = signedTiers[i];
             t.price = _signedTiers[i].price;
             t.supply = _signedTiers[i].supply;
@@ -126,7 +111,12 @@ contract SigMint is
     }
 
     function setPublicTier(Tier memory _publicTier) public onlyOwner {
-        publicTier = Tier(_publicTier.price, _publicTier.supply, _publicTier.startTime, _publicTier.maxPerWallet);
+        publicTier = Tier(
+            _publicTier.price,
+            _publicTier.supply,
+            _publicTier.startTime,
+            _publicTier.maxPerWallet
+        );
     }
 
     function setBaseUri(string memory uri) public onlyOwner {
@@ -271,15 +261,5 @@ contract SigMint is
     function _verify(MintPass memory pass) internal view returns (address) {
         bytes32 digest = _hash(pass);
         return ECDSA.recover(digest, pass.signature);
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC721Royalty, CantBeEvil)
-        returns (bool)
-    {
-        return ERC721.supportsInterface(interfaceId);
     }
 }
