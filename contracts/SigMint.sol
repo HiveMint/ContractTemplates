@@ -26,13 +26,10 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol"; /// TODO: EIP712 is final in OpenZeppelin v4.8.0, which is in RC0 as of 9/12/22
 import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
 
-contract SigMint is
-    ERC721,
-    Pausable,
-    Ownable,
-    PaymentSplitter,
-    EIP712
-{
+contract SigMint is ERC721, Pausable, Ownable, PaymentSplitter, EIP712 {
+    string private constant SIGNING_DOMAIN = "HiveMint";
+    string private constant SIGNATURE_VERSION = "1";
+
     struct Tier {
         uint256 price;
         uint256 supply;
@@ -76,7 +73,7 @@ contract SigMint is
     )
         ERC721(collectionName, tokenSymbol)
         PaymentSplitter(_payees, _shares)
-        EIP712("HiveMint", "1")
+        EIP712(SIGNING_DOMAIN, SIGNATURE_VERSION)
     {
         // initialize base variables
         baseUri = _baseUri_;
