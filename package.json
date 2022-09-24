@@ -15,6 +15,7 @@
   "license": "ISC",
   "devDependencies": {
     "@a16z/contracts": "^0.0.8",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^1.0.2",
     "@openzeppelin/contracts": "^4.7.3",
     "hardhat": "^2.10.2",
