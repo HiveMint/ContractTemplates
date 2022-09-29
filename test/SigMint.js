@@ -93,5 +93,19 @@ describe("SigMint contract", function () {
         })
       ).to.be.revertedWith("Signer address mismatch");
     });
-  });
+    it("Should not redeem an NFT using a signed mintpass from a different tier", async function () {
+        const lazyMinter = new SigMinter({
+          contract: hardhatToken,
+          signer: signer,
+        });
+        // using a different tier indix
+        const pass = await lazyMinter.createMintPass(1, generic_user.address);
+  
+        await expect(
+          hardhatToken.connect(generic_user).sigMint(0, pass.signature, 1, {
+            value: ethers.utils.parseEther("0.01"),
+          })
+        ).to.be.revertedWith("Signer address mismatch");
+      });
+    });
 });
