@@ -99,11 +99,7 @@ contract SigMint is ERC721, Pausable, Ownable, PaymentSplitter, EIP712 {
 
     function setSignedTiers(Tier[] memory _signedTiers) public onlyOwner {
         for (uint256 i = 0; i < _signedTiers.length; i++) {
-            Tier storage t = signedTiers[i];
-            t.price = _signedTiers[i].price;
-            t.supply = _signedTiers[i].supply;
-            t.startTime = _signedTiers[i].startTime;
-            t.maxPerWallet = _signedTiers[i].maxPerWallet;
+            signedTiers.push(_signedTiers[i]);
         }
     }
 
@@ -151,7 +147,7 @@ contract SigMint is ERC721, Pausable, Ownable, PaymentSplitter, EIP712 {
     ) public payable whenNotPaused {
         // check to make sure the tier mint time has started
         require(
-            block.timestamp < signedTiers[tierIdx].startTime,
+            block.timestamp > signedTiers[tierIdx].startTime,
             "This tier mint has not yet started"
         );
         // check to make sure the user passed enough funds to mint
@@ -180,7 +176,7 @@ contract SigMint is ERC721, Pausable, Ownable, PaymentSplitter, EIP712 {
 
         // make sure signature is valid and get the address of the signer
         address signer = _verify(_pass);
-        require(_signerAddress == signer, "Signer address mismatch.");
+        require(_signerAddress == signer, "Signer address mismatch");
 
         mint(msg.sender, numTokens);
         // increment tier minted for this address
@@ -195,7 +191,7 @@ contract SigMint is ERC721, Pausable, Ownable, PaymentSplitter, EIP712 {
     function publicMint(uint256 numTokens) public payable whenNotPaused {
         // check to make sure the public mint time has started
         require(
-            block.timestamp < publicTier.startTime,
+            block.timestamp > publicTier.startTime,
             "Public Mint has not yet started"
         );
         // check to make sure the user passed enough funds to mint
