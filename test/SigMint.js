@@ -84,6 +84,7 @@ describe("SigMint contract", function () {
         contract: hardhatToken,
         signer: signer,
       });
+      // using a different user's mintpass... 
       const pass = await lazyMinter.createMintPass(0, owner.address);
 
       await expect(
