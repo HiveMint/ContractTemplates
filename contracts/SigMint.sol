@@ -23,7 +23,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol"; /// TODO: EIP712 is final in OpenZeppelin v4.8.0, which is in RC0 as of 9/12/22
+import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
 
 contract SigMint is ERC721, Pausable, Ownable, PaymentSplitter, EIP712 {
