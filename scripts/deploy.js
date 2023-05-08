@@ -33,29 +33,49 @@
 // });
 
 
+// PEOPLE DAO: 0xDd386096048683378E87FA626C75C2b548fd5e7e
+// AFRO PIECE: 0x824E20A0e6ca696E655049dB755fB1fe1D422396
+// IPFS: bafybeid3arksryzfkrkcwvmhe6r5ix7pj2tsb2ofx56n5ky4gha3how74q
+
+
 const { task } = require("hardhat/config");
 const hardhat = require("hardhat");
 const { ethers } = hardhat;
 
+async function main() {
+  const [deployer] = await ethers.getSigners();
+
+  const blockNumBefore = await ethers.provider.getBlockNumber();
+  const blockBefore = await ethers.provider.getBlock(blockNumBefore);
+  const nowTimestamp = blockBefore.timestamp;
+
+  console.log("Deploying contracts with the account:", deployer.address);
+
+  console.log("Account balance:", (await deployer.getBalance()).toString());
+
+  console.log('now timestamp:', nowTimestamp);
+  const day = 60 * 60 * 24; // public mint starts in 1 day later...
+
+
+  // const Token = await ethers.getContractFactory("Token");
+  // const token = await Token.deploy();
+
+  // console.log("Token address:", token.address);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+
+/*
 // TODO: define getAccount() function
 const getAccount = () => { return "0x534Db4d2f6715D9c7023Bd938b0f62D72eE871eF"; }; // copilot generated...
 
 task("deploy", "Deploys the cfrac.sol contract").setAction(async function (taskArguments, hre) {
   const nftContractFactory = await hre.ethers.getContractFactory("SigMint", getAccount());
-
-  /* 
-    constructor(
-        string memory collectionName,
-        string memory tokenSymbol,
-        address[] memory _payees,
-        uint256[] memory _shares,
-        string memory _baseUri_,
-        Tier[] memory _signedTiers,
-        Tier memory _publicTier,
-        address signer
-    )
-  */
-
 
   let _payees = ["0x534Db4d2f6715D9c7023Bd938b0f62D72eE871eF", "0xDd386096048683378E87FA626C75C2b548fd5e7e"];
   let _shares = [1,1];
@@ -97,3 +117,4 @@ task("deploy", "Deploys the cfrac.sol contract").setAction(async function (taskA
   );
   console.log(`Contract deployed to address: ${nft.address} UPDATE CONTRACT ADDRESS IN .env, run verify-contract`);
 });
+*/
