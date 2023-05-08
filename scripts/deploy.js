@@ -57,7 +57,7 @@ async function main() {
   );
 
   console.log(`Contract deployed to address: ${token.address} UPDATE CONTRACT ADDRESS IN .env, run verify-contract`);
-  // npx hardhat verify --constructor-args arguments.js --network sepolia 0x4a248508C62A544A7f6a16BBDb2DFE240Bebc576
+  // npx hardhat verify --constructor-args scripts/arguments.js --network sepolia 0x15dC592dF0554DFd957B5b20bF6b3E4F965E2735
 }
 
 main()
